@@ -1,2 +1,9 @@
-.venv
+# Django folders
+__pycache__
+migrations
+
+# Environments elements
 .python-version
+.venv
+
+db.sqlite3
