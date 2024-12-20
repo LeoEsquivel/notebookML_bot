@@ -2,8 +2,12 @@
 __pycache__
 migrations
 
+#files
+*.pdf
+
 # Environments elements
 .python-version
 .venv
+.vscode
 
 db.sqlite3
