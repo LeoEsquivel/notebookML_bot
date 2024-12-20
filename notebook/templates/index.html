@@ -6,6 +6,58 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Hola mundo</h1>
+    <h1>Subir documento</h1>
+    <form name="UploadFileform" action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="document">Seleccionar archivo: </label>
+        <input type="file" id="document" name="document" required>
+        <button id="btn_upload_file">Subir</button>
+    </form>
+    <p id="status"></p>
 </body>
+
+
+<script>
+
+    const d = document;
+
+    const btn_upload_file = d.getElementById("btn_upload_file");
+
+    btn_upload_file.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const url = "{% url 'upload_document' %}";
+
+        console.log(url)
+        const fileInput = d.getElementById('document');
+        const file = fileInput.files[0];
+
+        if(!file){
+            d.getElementById('status').textContent = 'Por favor, seleccione un archivo.';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {'X-CSRFToken':'{{csrf_token}}'},
+                body: formData,
+            });
+
+            if(response.ok) {
+                d.getElementById('status').textContent = 'Archivo subido con exito.';
+            } else {
+                d.getElementById('status').textContent = 'Error al subir el archivo.';
+            }
+
+        } catch (error) {
+            d.getElementById('status').textContent = 'Hubo un problema al subir el archivo.'; 
+            console.log(error);           
+        }
+
+    })
+
+</script>
 </html>
