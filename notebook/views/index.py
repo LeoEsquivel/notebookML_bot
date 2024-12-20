@@ -11,7 +11,6 @@ def index(request):
 
 def upload_document(request):
     if request.method == 'POST':
-        print('Entro')
         try:
             file = request.FILES['file']
             document = UploadedDocument.objects.create(
