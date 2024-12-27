@@ -1,0 +1,48 @@
+<div>
+    <a href="/">Subir doc</a>
+    <a href="/chat">Preguntar</a>
+    <a href="/admin">Admin</a>
+</div>
+
+<h2>Hacer una pregunta</h2>
+<form id="questionForm">
+    <input type="hidden" id="documentId" value="1"> <!-- Cambia este valor dinámicamente -->
+    <label for="question">Pregunta:</label>
+    <input type="text" id="question" name="question" required>
+    <button type="submit">Preguntar</button>
+</form>
+
+<h3>Respuesta</h3>
+<pre id="answerResponse"></pre>
+
+<script>
+    const questionForm = document.getElementById('questionForm');
+    const answerResponse = document.getElementById('answerResponse');
+
+    questionForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const documentId = 5;
+        const question = document.getElementById('question').value;
+
+        const url = "{% url 'ask_question' %}"
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken':'{{csrf_token}}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ document_id: documentId, question }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                answerResponse.textContent = `Error: ${errorData.msg}`;
+                return;
+            }
+
+            const data = await response.json();
+            answerResponse.textContent = `Pregunta: ${data.question}\nRespuesta: ${data.answer}`;
+        } catch (error) {
+            answerResponse.textContent = `Error al realizar la solicitud: ${error.message}`;
+        }
+    });
+</script>
