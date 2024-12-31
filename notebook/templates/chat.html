@@ -2,7 +2,19 @@
     <a href="/">Subir doc</a>
     <a href="/chat">Preguntar</a>
     <a href="/admin">Admin</a>
+    <a href="/analyze_text">Admin</a>
 </div>
+
+<div>
+    <ul>
+        {% for file in files_list %}
+            <li>{{file.title}} <input type="checkbox" value="{{file.id}}" checked></li>
+        {%endfor%}
+    </ul>
+</div>
+
+<h2>Analizat Texto</h2>
+<button id="analizar_texto">Analizar</button>
 
 <h2>Hacer una pregunta</h2>
 <form id="questionForm">
@@ -16,16 +28,20 @@
 <pre id="answerResponse"></pre>
 
 <script>
-    const questionForm = document.getElementById('questionForm');
-    const answerResponse = document.getElementById('answerResponse');
+    const d = document
+
+    const questionForm = d.getElementById('questionForm');
+    const answerResponse = d.getElementById('answerResponse');
+
+    const btn_analizar_texto = d.getElementById('analizar_texto');
 
     questionForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const documentId = 5;
-        const question = document.getElementById('question').value;
+        const documentId = 8;
+        const question = d.getElementById('question').value;
 
-        const url = "{% url 'ask_question' %}"
+        const url = "{% url 'ask_question' %}";
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -45,4 +61,35 @@
             answerResponse.textContent = `Error al realizar la solicitud: ${error.message}`;
         }
     });
+
+    btn_analizar_texto.addEventListener('click', async (e)=> {
+        e.preventDefault();
+        const url = "{% url 'analyze_text' %}"
+
+        const file_id = Array.from(d.querySelectorAll('input[type="checkbox"]:checked')).map( check => {
+            return Number(check.value);
+        });
+
+        if(!file_id) return alert('Seleccione un documento.');
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken':'{{csrf_token}}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({file_id: file_id[0]}),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                answerResponse.textContent = `Error: ${errorData.msg}`;
+                return;
+            }
+
+            const data = await response.json();
+            
+        } catch (error) {
+            answerResponse.textContent = `Error al realizar la solicitud: ${error.message}`;
+        }
+
+    })
 </script>
